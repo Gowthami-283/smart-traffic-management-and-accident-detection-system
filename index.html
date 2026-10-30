@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Traffic Management and Accident Detection System</title>
+  <meta name="description" content="AI-Powered Smart Traffic Management, Adaptive Signal Control, and Real-Time Accident Detection System Dashboard.">
+  
+  <!-- Modern Clean Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Sticky Global Emergency Siren & Collision Alert Banner -->
+  <div id="global-emergency-banner" class="emergency-top-banner" role="alert" aria-live="assertive">
+    <div class="banner-content">
+      <span class="banner-siren-icon">🚨</span>
+      <span id="banner-emergency-text">CRITICAL ALERT: Accident Detected! Emergency Protocol Activated.</span>
+    </div>
+    <button id="btn-stop-alarm" class="btn btn-sm btn-primary">🛑 Stop Alarm</button>
+  </div>
+
+  <!-- Header Section -->
+  <header class="header-bar">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-icon" aria-hidden="true">🚦</div>
+        <div class="brand-info">
+          <h1>Smart Traffic Management and Accident Detection System</h1>
+          <span class="brand-subtitle">Autonomous Adaptive Intersection & Incident Response Control Hub</span>
+        </div>
+      </div>
+
+      <div class="header-metrics">
+        <!-- Live Digital Clock & Date -->
+        <div class="clock-card" aria-label="Real-time digital date and clock">
+          <div id="digital-clock" class="digital-clock">00:00:00</div>
+          <div id="digital-date" class="digital-date">Loading date...</div>
+        </div>
+
+        <!-- System & Siren Status Badges -->
+        <div class="system-status-group">
+          <span id="header-system-status" class="system-badge badge-normal">System Active</span>
+          <span id="header-siren-indicator" class="system-badge badge-normal">Siren Quiet</span>
+        </div>
+
+        <!-- Header Quick Action Buttons -->
+        <div class="header-actions">
+          <button id="btn-test-alarm" class="btn btn-secondary" title="Test Web Audio API siren for 4 seconds">
+            🔊 Test Alarm
+          </button>
+          <button id="btn-simulate-accident" class="btn btn-danger" title="Simulate a real-time accident across lanes">
+            🚨 Simulate Accident
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main class="dashboard-main">
+
+    <!-- 1. KPI Metrics Summary Cards -->
+    <section class="kpi-grid" aria-label="Key Performance Indicators">
+      <!-- Total Vehicles Card -->
+      <article class="kpi-card">
+        <div class="kpi-icon-wrap kpi-blue">🚗</div>
+        <div class="kpi-details">
+          <div class="kpi-title">Total Vehicles</div>
+          <div id="kpi-total-vehicles" class="kpi-value">1,420</div>
+          <div class="kpi-subtext">Processed throughput today</div>
+        </div>
+      </article>
+
+      <!-- Traffic Density Card -->
+      <article class="kpi-card">
+        <div class="kpi-icon-wrap kpi-amber">📊</div>
+        <div class="kpi-details">
+          <div class="kpi-title">Network Density</div>
+          <div class="kpi-value">
+            <span id="kpi-avg-density" class="kpi-density-badge density-medium">Medium</span>
+          </div>
+          <div class="kpi-subtext">Adaptive signal timing active</div>
+        </div>
+      </article>
+
+      <!-- Active Signals Card -->
+      <article class="kpi-card">
+        <div class="kpi-icon-wrap kpi-emerald">🟢</div>
+        <div class="kpi-details">
+          <div class="kpi-title">Active Signals</div>
+          <div id="kpi-active-signals" class="kpi-value">4 / 4 Normal</div>
+          <div class="kpi-subtext">N, S, E, W automated sync</div>
+        </div>
+      </article>
+
+      <!-- Detected Accidents Card -->
+      <article class="kpi-card">
+        <div class="kpi-icon-wrap kpi-crimson">⚠️</div>
+        <div class="kpi-details">
+          <div class="kpi-title">Detected Accidents</div>
+          <div id="kpi-total-accidents" class="kpi-value">2</div>
+          <div class="kpi-subtext">Emergency telemetry logged</div>
+        </div>
+      </article>
+    </section>
+
+    <!-- 2. Dual Interactive Section: 2D Intersection Simulator & 4-Way Traffic Signal Control -->
+    <section class="interactive-section">
+
+      <!-- Left Column: 2D Interactive 4-Way Intersection Simulator Canvas -->
+      <article class="dashboard-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <h2 class="card-title">Live 4-Way Intersection Simulator</h2>
+            <span class="card-badge">Real-Time Simulation</span>
+          </div>
+          <div class="card-controls">
+            <button id="btn-pause-cycle" class="btn btn-sm btn-secondary" title="Pause or resume signal cycling">
+              ⏸ Pause Cycle
+            </button>
+          </div>
+        </div>
+
+        <div class="canvas-viewport-container">
+          <canvas id="intersection-canvas" width="560" height="560"></canvas>
+          <div class="canvas-hint">
+            💡 <span>Tip: Click on any road approach to simulate an accident or trigger emergency clearance at that spot!</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Right Column: Digital Traffic Signals for North, East, South, West -->
+      <article class="dashboard-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <h2 class="card-title">Smart Signal Controller (N / E / S / W)</h2>
+            <span class="card-badge">Adaptive Timing</span>
+          </div>
+          <div class="card-controls">
+            <label class="density-label" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+              <input type="checkbox" id="toggle-auto-detect" style="cursor: pointer;">
+              Auto Accident Sim
+            </label>
+          </div>
+        </div>
+
+        <!-- 4 Separate Directional Lanes -->
+        <div class="signals-grid">
+
+          <!-- Lane 1: NORTH -->
+          <div id="lane-card-north" class="lane-signal-card">
+            <div class="lane-header">
+              <span class="lane-name">
+                <span class="lane-badge-id">NORTH</span>
+                North Approach
+              </span>
+              <span id="status-north" class="signal-status-badge badge-green">GO</span>
+            </div>
+
+            <div class="lane-body">
+              <!-- Physical Traffic Light Shroud -->
+              <div class="traffic-light-housing" aria-label="North Traffic Signal">
+                <div id="lamp-north-red" class="signal-lamp lamp-red"></div>
+                <div id="lamp-north-yellow" class="signal-lamp lamp-yellow"></div>
+                <div id="lamp-north-green" class="signal-lamp lamp-green active"></div>
+              </div>
+
+              <!-- Digital Countdown & Queue Telemetry -->
+              <div class="lane-telemetry">
+                <div class="timer-box">
+                  <span class="timer-label">Countdown</span>
+                  <span id="timer-north" class="signal-timer timer-green">15s</span>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Vehicles Queued:</span>
+                  <strong id="queue-north" class="font-mono">26 veh</strong>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Green Window:</span>
+                  <span class="text-muted">Adaptive (8s-24s)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Density Settings -->
+            <div class="density-control-row">
+              <span class="density-label">Density:</span>
+              <div class="btn-group">
+                <button id="btn-dens-north-low" class="density-btn">Low (8s)</button>
+                <button id="btn-dens-north-medium" class="density-btn active">Med (15s)</button>
+                <button id="btn-dens-north-high" class="density-btn">High (24s)</button>
+              </div>
+            </div>
+
+            <div class="lane-actions-row">
+              <button id="btn-force-north" class="btn-sm btn-outline-info" style="flex: 1;">⚡ Priority Green</button>
+              <button id="btn-acc-north" class="btn-sm btn-outline-danger" style="flex: 1;">⚠️ Crash Sim</button>
+            </div>
+          </div>
+
+          <!-- Lane 2: EAST -->
+          <div id="lane-card-east" class="lane-signal-card">
+            <div class="lane-header">
+              <span class="lane-name">
+                <span class="lane-badge-id">EAST</span>
+                East Approach
+              </span>
+              <span id="status-east" class="signal-status-badge badge-red">STOP</span>
+            </div>
+
+            <div class="lane-body">
+              <div class="traffic-light-housing" aria-label="East Traffic Signal">
+                <div id="lamp-east-red" class="signal-lamp lamp-red active"></div>
+                <div id="lamp-east-yellow" class="signal-lamp lamp-yellow"></div>
+                <div id="lamp-east-green" class="signal-lamp lamp-green"></div>
+              </div>
+
+              <div class="lane-telemetry">
+                <div class="timer-box">
+                  <span class="timer-label">Wait Timer</span>
+                  <span id="timer-east" class="signal-timer timer-red">18s</span>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Vehicles Queued:</span>
+                  <strong id="queue-east" class="font-mono">48 veh</strong>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Green Window:</span>
+                  <span class="text-muted">Adaptive (8s-24s)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="density-control-row">
+              <span class="density-label">Density:</span>
+              <div class="btn-group">
+                <button id="btn-dens-east-low" class="density-btn">Low (8s)</button>
+                <button id="btn-dens-east-medium" class="density-btn">Med (15s)</button>
+                <button id="btn-dens-east-high" class="density-btn active">High (24s)</button>
+              </div>
+            </div>
+
+            <div class="lane-actions-row">
+              <button id="btn-force-east" class="btn-sm btn-outline-info" style="flex: 1;">⚡ Priority Green</button>
+              <button id="btn-acc-east" class="btn-sm btn-outline-danger" style="flex: 1;">⚠️ Crash Sim</button>
+            </div>
+          </div>
+
+          <!-- Lane 3: SOUTH -->
+          <div id="lane-card-south" class="lane-signal-card">
+            <div class="lane-header">
+              <span class="lane-name">
+                <span class="lane-badge-id">SOUTH</span>
+                South Approach
+              </span>
+              <span id="status-south" class="signal-status-badge badge-red">STOP</span>
+            </div>
+
+            <div class="lane-body">
+              <div class="traffic-light-housing" aria-label="South Traffic Signal">
+                <div id="lamp-south-red" class="signal-lamp lamp-red active"></div>
+                <div id="lamp-south-yellow" class="signal-lamp lamp-yellow"></div>
+                <div id="lamp-south-green" class="signal-lamp lamp-green"></div>
+              </div>
+
+              <div class="lane-telemetry">
+                <div class="timer-box">
+                  <span class="timer-label">Wait Timer</span>
+                  <span id="timer-south" class="signal-timer timer-red">42s</span>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Vehicles Queued:</span>
+                  <strong id="queue-south" class="font-mono">12 veh</strong>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Green Window:</span>
+                  <span class="text-muted">Adaptive (8s-24s)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="density-control-row">
+              <span class="density-label">Density:</span>
+              <div class="btn-group">
+                <button id="btn-dens-south-low" class="density-btn active">Low (8s)</button>
+                <button id="btn-dens-south-medium" class="density-btn">Med (15s)</button>
+                <button id="btn-dens-south-high" class="density-btn">High (24s)</button>
+              </div>
+            </div>
+
+            <div class="lane-actions-row">
+              <button id="btn-force-south" class="btn-sm btn-outline-info" style="flex: 1;">⚡ Priority Green</button>
+              <button id="btn-acc-south" class="btn-sm btn-outline-danger" style="flex: 1;">⚠️ Crash Sim</button>
+            </div>
+          </div>
+
+          <!-- Lane 4: WEST -->
+          <div id="lane-card-west" class="lane-signal-card">
+            <div class="lane-header">
+              <span class="lane-name">
+                <span class="lane-badge-id">WEST</span>
+                West Approach
+              </span>
+              <span id="status-west" class="signal-status-badge badge-red">STOP</span>
+            </div>
+
+            <div class="lane-body">
+              <div class="traffic-light-housing" aria-label="West Traffic Signal">
+                <div id="lamp-west-red" class="signal-lamp lamp-red active"></div>
+                <div id="lamp-west-yellow" class="signal-lamp lamp-yellow"></div>
+                <div id="lamp-west-green" class="signal-lamp lamp-green"></div>
+              </div>
+
+              <div class="lane-telemetry">
+                <div class="timer-box">
+                  <span class="timer-label">Wait Timer</span>
+                  <span id="timer-west" class="signal-timer timer-red">54s</span>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Vehicles Queued:</span>
+                  <strong id="queue-west" class="font-mono">31 veh</strong>
+                </div>
+                <div class="lane-stats-row">
+                  <span>Green Window:</span>
+                  <span class="text-muted">Adaptive (8s-24s)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="density-control-row">
+              <span class="density-label">Density:</span>
+              <div class="btn-group">
+                <button id="btn-dens-west-low" class="density-btn">Low (8s)</button>
+                <button id="btn-dens-west-medium" class="density-btn active">Med (15s)</button>
+                <button id="btn-dens-west-high" class="density-btn">High (24s)</button>
+              </div>
+            </div>
+
+            <div class="lane-actions-row">
+              <button id="btn-force-west" class="btn-sm btn-outline-info" style="flex: 1;">⚡ Priority Green</button>
+              <button id="btn-acc-west" class="btn-sm btn-outline-danger" style="flex: 1;">⚠️ Crash Sim</button>
+            </div>
+          </div>
+
+        </div>
+      </article>
+    </section>
+
+    <!-- 3. Accident Detection & Emergency Response Section -->
+    <section class="monitoring-grid">
+      <!-- Live Incident Telemetry & Camera HUD -->
+      <article class="dashboard-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <h2 class="card-title">Accident Detection & Telemetry Feed</h2>
+            <span class="card-badge">AI Vision Analysis</span>
+          </div>
+          <div class="cctv-live-tag">LIVE HUD</div>
+        </div>
+
+        <div class="telemetry-feed">
+          <div class="cctv-header">
+            <span>OPTICAL SENSOR // JUNCTION-04 HUB</span>
+            <span>FRAME RATE: 60 FPS</span>
+          </div>
+
+          <div class="telemetry-data-list">
+            <div class="telemetry-item">
+              <div class="telemetry-item-label">Impact Status</div>
+              <div id="live-response-status" class="telemetry-item-val" style="color: #38bdf8;">Monitoring Junction</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-item-label">AI Impact Detection Rate</div>
+              <div class="telemetry-item-val" style="color: #10b981;">99.4% Accuracy</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-item-label">Web Audio Siren API</div>
+              <div class="telemetry-item-val" style="color: #fbbf24;">Armed & Ready</div>
+            </div>
+            <div class="telemetry-item">
+              <div class="telemetry-item-label">Traffic Diversion Routine</div>
+              <div class="telemetry-item-val" style="color: #34d399;">Automatic Bypass</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Stage Response Workflow Stepper -->
+        <div class="response-workflow" aria-label="Incident Response Workflow">
+          <div class="step completed">
+            <div class="step-circle">1</div>
+            <span class="step-label">Collision Detected</span>
+          </div>
+          <div class="step">
+            <div class="step-circle">2</div>
+            <span class="step-label">Siren & Alert</span>
+          </div>
+          <div class="step">
+            <div class="step-circle">3</div>
+            <span class="step-label">EMS Dispatched</span>
+          </div>
+          <div class="step">
+            <div class="step-circle">4</div>
+            <span class="step-label">Corridor Cleared</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Accident History & Incident Log -->
+      <article class="dashboard-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <h2 class="card-title">Incident History Log</h2>
+            <span id="history-count-badge" class="card-badge">2 Recorded</span>
+          </div>
+          <div class="card-controls">
+            <button id="btn-export-csv" class="btn btn-sm btn-outline-info" title="Export incident history to CSV">
+              📥 Export CSV
+            </button>
+            <button id="btn-clear-history" class="btn btn-sm btn-secondary" title="Clear stored incident history">
+              🗑️ Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="history-filter-bar">
+          <div class="filter-group">
+            <label for="filter-history-lane" class="density-label">Filter Lane:</label>
+            <select id="filter-history-lane" class="filter-select">
+              <option value="all">All Directions</option>
+              <option value="north">North Lane</option>
+              <option value="east">East Lane</option>
+              <option value="south">South Lane</option>
+              <option value="west">West Lane</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-history-status" class="density-label">Status:</label>
+            <select id="filter-history-status" class="filter-select">
+              <option value="all">All Statuses</option>
+              <option value="active">Active Only</option>
+              <option value="resolved">Resolved Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Incident Table -->
+        <div class="table-responsive">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Date / Time</th>
+                <th>Lane</th>
+                <th>Severity</th>
+                <th>Vehicles Involved</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accident-history-tbody">
+              <!-- Populated dynamically via accident.js -->
+            </tbody>
+          </table>
+          <div id="history-empty-state" class="empty-state" style="display: none;">
+            No incidents recorded. System running smoothly.
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- 4. Traffic Analytics & Real-Time Charts -->
+    <section>
+      <div class="card-header" style="margin-bottom: 14px;">
+        <div class="card-header-left">
+          <h2 class="card-title">Traffic Analytics & Fleet Telemetry</h2>
+          <span class="card-badge">Live Diagnostics</span>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Chart 1: Lane Density Bar Chart -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>Directional Queue & Density</span>
+            <span class="chart-badge">Active Queue / Max 70</span>
+          </div>
+          <div class="chart-viewport">
+            <canvas id="density-bar-chart" data-height="200"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Fleet Distribution Donut Chart -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>Vehicle Classification Mix</span>
+            <span class="chart-badge">Fleet Breakdown</span>
+          </div>
+          <div class="chart-viewport">
+            <canvas id="vehicle-donut-chart" data-height="200"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: 24-Hour Traffic Flow Trend -->
+        <div class="chart-card">
+          <div class="chart-title">
+            <span>24-Hour Volume & Incident Points</span>
+            <span class="chart-badge">Hourly Vehicles/Hr</span>
+          </div>
+          <div class="chart-viewport">
+            <canvas id="hourly-trend-chart" data-height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 5. Emergency Notification Modal Popup -->
+  <div id="emergency-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header-alert">
+        <div class="modal-header-title">
+          <span class="banner-siren-icon">🚨</span>
+          <span id="modal-title">EMERGENCY! ACCIDENT DETECTED</span>
+        </div>
+        <button id="modal-btn-close" class="modal-close-icon" aria-label="Close Emergency Window">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="emergency-callout">
+          <span>⚠️</span>
+          <span>EMERGENCY! Accident Detected. Please Contact Emergency Services.</span>
+        </div>
+
+        <div class="modal-details-grid">
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Incident ID</span>
+            <span id="modal-incident-id" class="modal-detail-val">INC-9901</span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Location / Approach</span>
+            <span id="modal-incident-lane" class="modal-detail-val">North Approach (Lane 4)</span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Date & Timestamp</span>
+            <span id="modal-incident-time" class="modal-detail-val">2026-10-30 11:45:00</span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Severity Level</span>
+            <span id="modal-incident-severity" class="modal-detail-val badge badge-critical">Critical</span>
+          </div>
+          <div class="modal-detail-item" style="grid-column: span 2;">
+            <span class="modal-detail-label">Involved Vehicles</span>
+            <span id="modal-incident-vehicles" class="modal-detail-val">Transit Bus & Sedan #KA-04-TR-6632</span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Estimated Impact Force</span>
+            <span id="modal-incident-force" class="modal-detail-val">34.2 g</span>
+          </div>
+          <div class="modal-detail-item">
+            <span class="modal-detail-label">Signal Diversion Action</span>
+            <span class="modal-detail-val" style="color: #34d399;">Reroute Enabled</span>
+          </div>
+        </div>
+
+        <div class="modal-response-eta-box">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">
+              Emergency Response ETA
+            </div>
+            <div style="font-size: 0.82rem; color: #e2e8f0;">
+              Highway Patrol & EMS Unit #108 En Route
+            </div>
+          </div>
+          <div id="modal-ems-eta" class="modal-eta-val">3m 40s</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="modal-btn-silence" class="btn btn-outline-danger">
+          🔇 Silence Siren
+        </button>
+        <button id="modal-btn-resolve" class="btn btn-primary">
+          ✅ Resolve & Clear Lane
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Footer -->
+  <footer class="dashboard-footer">
+    <div class="footer-container">
+      <div>
+        <strong>Smart Traffic Management and Accident Detection System</strong> &bull; Complete Autonomous Web Dashboard
+      </div>
+      <div class="footer-badges">
+        <span>Web Audio API Siren</span>
+        <span>&bull;</span>
+        <span>Adaptive Signal Timing</span>
+        <span>&bull;</span>
+        <span>HTML5 Canvas 2D Simulator</span>
+        <span>&bull;</span>
+        <span>localStorage Persistence</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Scripts in Logical Dependency Order -->
+  <script src="js/audio.js"></script>
+  <script src="js/traffic.js"></script>
+  <script src="js/accident.js"></script>
+  <script src="js/intersection-canvas.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
